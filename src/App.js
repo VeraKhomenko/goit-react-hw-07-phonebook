@@ -1,26 +1,40 @@
-import React from 'react';
+import { Component } from 'react';
+import { connect } from 'react-redux';
+import { SpinnerComponent } from 'react-element-spinner';
 import Container from './components/Container';
 import ContactList from './components/ContactList';
 import Form from './components/Form';
+import { contactsOperations, contactsSelectors } from './redux';
 import Filter from './components/Filter';
 
-const App = () => {
-  return (
-    <Container>
-      <h1>Phonebook</h1>
-      <Form />
-      <h2>Contacts</h2>
-      <Filter />
-      <ContactList />
-    </Container>
-  )
+class App extends Component {
+  componentDidMount() {
+    this.props.fetchContacts();
+  }
+  render() {
+    return (
+      <Container>
+        <h1>Phonebook</h1>
+        <Form />
+        <h2>Contacts</h2>
+        <Filter />
+        <ContactList />
+        {this.props.isLoadingContacts && (
+          <SpinnerComponent loading={true} position="global" />
+        )}
+      </Container>
+    );
+  }
 }
+const mapStateToProps = state => ({
+  isLoadingContacts: contactsSelectors.getLoading(state),
+});
 
-export default App;
+const mapDispatchToProps = dispatch => ({
+  fetchContacts: () => dispatch(contactsOperations.fetchContacts()),
+});
 
-
-
-
+export default connect(mapStateToProps, mapDispatchToProps)(App);
 
 // import shortid from 'shortid';
 
@@ -59,7 +73,6 @@ export default App;
 //       contacts: prevState.contacts.filter(contact => contact.id !== idContact),
 //     }));
 // };
-
 
 // getVisibleContacts = () => {
 //   const { filter, contacts } = this.state;
